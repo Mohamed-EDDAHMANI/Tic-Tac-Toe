@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<!-- HTML5 document type declaration -->
+<html lang="fr">
+<!-- Root HTML element with French language attribute -->
+
+<head>
+    <!-- Document metadata section - not visible to users -->
+    
+    <meta charset="UTF-8">
+    <!-- Character encoding set to UTF-8 for proper text display including accents -->
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Responsive design meta tag - ensures proper scaling on mobile devices -->
+    
+    <link rel="stylesheet" href="styles.css">
+    <!-- Link to external CSS stylesheet for styling -->
+    
+    <title>PlayInnovate - Tic Tac Toe Dynamique</title>
+    <!-- Page title that appears in browser tab -->
+</head>
+
+<body>
+    <!-- Main content container - everything visible to users -->
+    
+    <header>
+        <!-- Top navigation/header section of the page -->
+        
+        <div class="leftSection">
+            <!-- Left side of header containing logo and title -->
+            
+            <div class="logo">🎮</div>
+            <!-- Logo using gaming emoji icon -->
+            
+            <h1>PlayInnovate Tic Tac Toe</h1>
+            <!-- Main heading/title of the game -->
+        </div>
+        
+        <div class="rightSection">
+            <!-- Right side of header containing action buttons -->
+            
+            <button id="restartBtn" class="btn-primary">Nouvelle Partie</button>
+            <!-- Primary button to start a new game (French: "New Game") -->
+            
+            <button id="resetScoresBtn" class="btn-secondary">Reset Scores</button>
+            <!-- Secondary button to reset player scores -->
+            
+            <button id="settingsBtn" class="btn-settings">⚙️ Paramètres</button>
+            <!-- Settings button with gear emoji (French: "Settings") -->
+        </div>
+    </header>
+
+    <!-- Settings Modal -->
+    <!-- Modal popup window for game configuration - initially hidden -->
+    <div id="settingsModal" class="modal">
+        <!-- Modal overlay background -->
+        
+        <div class="modal-content">
+            <!-- Actual modal content container -->
+            
+            <span class="close">&times;</span>
+            <!-- Close button using HTML entity for × symbol -->
+            
+            <h2>Paramètres du Jeu</h2>
+            <!-- Modal title (French: "Game Settings") -->
+            
+            <div class="settings-grid">
+                <!-- Container for settings form elements in grid layout -->
+                
+                <div class="setting-group">
+                    <!-- First setting: Grid size -->
+                    <label for="gridSize">Taille de la grille (n×n):</label>
+                    <!-- Label for grid size input (French: "Grid size (n×n):") -->
+                    <input type="number" id="gridSize" min="3" max="10" value="3">
+                    <!-- Number input for grid dimensions, limited between 3-10, default 3 -->
+                </div>
+                
+                <div class="setting-group">
+                    <!-- Second setting: Win condition -->
+                    <label for="winCondition">Alignements requis (k):</label>
+                    <!-- Label for win condition (French: "Required alignments (k):") -->
+                    <input type="number" id="winCondition" min="3" max="10" value="3">
+                    <!-- Number input for how many symbols needed in a row to win -->
+                </div>
+                
+                <div class="setting-group">
+                    <!-- Third setting: Player 1 symbol -->
+                    <label for="player1Symbol">Symbole Joueur 1:</label>
+                    <!-- Label for player 1 symbol selection (French: "Player 1 Symbol:") -->
+                    <select id="player1Symbol">
+                        <!-- Dropdown menu for symbol selection -->
+                        <option value="X">X</option>
+                        <!-- Option for X symbol (selected by default) -->
+                        <option value="O">O</option>
+                        <!-- Option for O symbol -->
+                    </select>
+                </div>
+                
+                <div class="setting-group">
+                    <!-- Fourth setting: Player 2 symbol -->
+                    <label for="player2Symbol">Symbole Joueur 2:</label>
+                    <!-- Label for player 2 symbol selection (French: "Player 2 Symbol:") -->
+                    <select id="player2Symbol">
+                        <!-- Dropdown menu for symbol selection -->
+                        <option value="O">O</option>
+                        <!-- Option for O symbol (selected by default) -->
+                        <option value="X">X</option>
+                        <!-- Option for X symbol -->
+                    </select>
+                </div>
+            </div>
+            
+            <button id="applySettings" class="btn-primary">Appliquer</button>
+            <!-- Button to apply/save settings changes (French: "Apply") -->
+        </div>
+    </div>
+
+    <main>
+        <!-- Main content area of the page -->
+        
+        <div class="gameSection">
+            <!-- Container for the entire game interface -->
+            
+            <div class="playerInfo playerOne">
+                <!-- Left player information panel -->
+                
+                <input class="playerName" id="player1Name" value="Joueur 1" maxlength="15">
+                <!-- Editable input field for player 1 name, max 15 characters -->
+                
+                <div class="playerSymbol" id="player1SymbolDisplay">X</div>
+                <!-- Display of player 1's current symbol -->
+                
+                <p class="playerScore">Score: <span id="player1Score">0</span></p>
+                <!-- Player 1 score display with dynamic span for score value -->
+                
+                <div class="playerStatus" id="player1Status"></div>
+                <!-- Status indicator for player 1 (active turn, winner, etc.) -->
+            </div>
+
+            <div class="gameCenter">
+                <!-- Central game area containing status, grid, and controls -->
+                
+                <div class="gameStatus">
+                    <!-- Game status information display -->
+                    
+                    <p class="currentTurn">Tour de: <span id="currentPlayer">Joueur 1</span></p>
+                    <!-- Current turn indicator (French: "Turn of:") with dynamic player name -->
+                    
+                    <p class="gameInfo">Grille: <span id="gridInfo">3×3</span> | Alignements: <span id="winInfo">3</span></p>
+                    <!-- Game configuration info showing grid size and win condition -->
+                    
+                    <p class="winningMessage" id="winningMessage"></p>
+                    <!-- Message area for displaying game results (winner, draw, etc.) -->
+                </div>
+                
+                <div class="gameGrid" id="gameGrid">
+                    <!-- Game board container - cells will be generated dynamically by JavaScript -->
+                    <!-- Grid will be generated dynamically -->
+                </div>
+
+                <div class="gameControls">
+                    <!-- Quick action controls below the game grid -->
+                    
+                    <button id="quickRestart" class="btn-quick">🔄 Rejouer</button>
+                    <!-- Quick restart button with refresh emoji (French: "Play Again") -->
+                </div>
+            </div>
+
+            <div class="playerInfo playerTwo">
+                <!-- Right player information panel -->
+                
+                <input class="playerName" id="player2Name" value="Joueur 2" maxlength="15">
+                <!-- Editable input field for player 2 name, max 15 characters -->
+                
+                <div class="playerSymbol" id="player2SymbolDisplay">O</div>
+                <!-- Display of player 2's current symbol -->
+                
+                <p class="playerScore">Score: <span id="player2Score">0</span></p>
+                <!-- Player 2 score display with dynamic span for score value -->
+                
+                <div class="playerStatus" id="player2Status"></div>
+                <!-- Status indicator for player 2 (active turn, winner, etc.) -->
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <!-- Footer section at bottom of page -->
+        <p>&copy; 2024 PlayInnovate - Gaming Innovation</p>
+        <!-- Copyright notice with HTML entity for © symbol -->
+    </footer>
+
+    <!-- <script src="script.js"></script> -->
+    <!-- Link to external JavaScript file for game functionality -->
+</body>
+<!-- End of visible content -->
+
+</html>
+<!-- End of HTML document -->
