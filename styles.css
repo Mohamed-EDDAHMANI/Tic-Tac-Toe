@@ -281,7 +281,10 @@ main {
 }
 
 .cell.filled {
+  /* i want this element non clickable but the cursor should change */
   cursor: not-allowed;
+  background: var(--border-color);
+  pointer-events: none;
 }
 
 .cell.winning {
