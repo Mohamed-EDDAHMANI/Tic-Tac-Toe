@@ -128,18 +128,25 @@ main {
 
 .gameSection {
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr;
-  gap: 2rem;
+  grid-template-columns: minmax(180px, 1fr) minmax(250px, 2.5fr) minmax(180px, 1fr);
+  gap: 2.5vw;
   align-items: start;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 /* Player Info */
 .playerInfo {
   background: white;
-  padding: 1.5rem;
+  padding: 2rem 1rem;
   border-radius: 1rem;
   box-shadow: var(--shadow);
   text-align: center;
+  min-width: 160px;
+  max-width: 260px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .playerName {
@@ -206,9 +213,13 @@ main {
 /* Game Center */
 .gameCenter {
   background: white;
-  padding: 2rem;
+  padding: 1.5rem;
   border-radius: 1rem;
   box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 550px;
+  margin: 0 auto;
+  height: fit-content;
 }
 
 .gameStatus {
@@ -254,14 +265,15 @@ main {
 .gameGrid {
   display: grid;
   gap: 0.25rem;
-  margin: 2rem auto;
+  margin: 1rem auto;
   background: var(--border-color);
   border-radius: 0.5rem;
   padding: 0.25rem;
   width: 100%;
-  max-width: 90vw;
-  min-width: 240px;
-  overflow: auto;
+  max-width: 450px;
+  max-height: 450px;
+  aspect-ratio: 1;
+  /* overflow removed to prevent scroll */
 }
 
 .cell {
