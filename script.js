@@ -8,6 +8,9 @@ const player2Symbol = document.getElementById('player2Symbol');
 const gameGrid = document.getElementById('gameGrid');
 const restartBtn = document.getElementById('restartBtn')
 
+const player1Name = { value: 'Player 1' };
+const player2Name = { value: 'Player 2' };
+
 params.addEventListener('click', () => {
     const modal = document.getElementById('settingsModal');
     modal.style.display = 'block';
@@ -35,6 +38,9 @@ applySettings.addEventListener('click', () => {
             localStorage.setItem('player1Symbol', player1SymbolValue);
             localStorage.setItem('player2Symbol', player2SymbolValue);
             localStorage.setItem('currentPlayerSymbol', player1SymbolValue);
+            // Update the front-end symbols
+            document.getElementById('player1SymbolDisplay').textContent = player1SymbolValue;
+            document.getElementById('player2SymbolDisplay').textContent = player2SymbolValue;
         } else {
             alert('Invalid player symbols. Please ensure they are different and not empty.');
             return;
@@ -65,21 +71,14 @@ function createGrid() {
 
     // Initialize game grid
     for (let i = 0; i < size; i++) {
-        console.log('here');
-        const row = document.createElement('div');
-        row.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
-        row.classList.add('row');
         for (let j = 0; j < size; j++) {
             const cell = document.createElement('div');
             cell.classList.add('cell');
             cell.style.margin = '0.25rem 0';
-            // cell.classList.add('filled');
-            // cell.classList.add('winning');
             cell.dataset.row = i;
             cell.dataset.col = j;
-            row.appendChild(cell);
+            gameGrid.appendChild(cell);
         }
-        gameGrid.appendChild(row);
     }
     addEventListener();
 }
@@ -88,91 +87,128 @@ function createGrid() {
 function addEventListener() {
     document.querySelectorAll('.cell').forEach(cell => {
         cell.addEventListener('click', (e) => {
+            if (cell.classList.contains('filled')) return;
             const currentPlayerSymbol = localStorage.getItem('currentPlayerSymbol');
             const content = document.createElement('h1');
             content.textContent = currentPlayerSymbol;
             cell.appendChild(content);
-            e.target.classList.add('filled');
-            checkWin(e.target);
+            cell.classList.add('filled');
+            checkWin(cell);
             if (currentPlayerSymbol === localStorage.getItem('player1Symbol')) {
                 localStorage.setItem('currentPlayerSymbol', localStorage.getItem('player2Symbol'));
-            }else {
+            } else {
                 localStorage.setItem('currentPlayerSymbol', localStorage.getItem('player1Symbol'));
             }
-
-            // console.log(`Cell clicked: Row ${e.target.dataset.row}, Col ${e.target.dataset.col}`);
         });
     });
 
 }
 
+// update score in localStorage and UI
+function updateScore(symbol) {
+    // Get scores from localStorage or initialize
+    let scores = JSON.parse(localStorage.getItem("scores") || "{\"X\":0,\"O\":0}");
+    if (symbol === localStorage.getItem('player1Symbol')) {
+        scores.X = (scores.X || 0) + 1;
+        document.getElementById('player1Score').textContent = scores.X;
+    } else {
+        scores.O = (scores.O || 0) + 1;
+        document.getElementById('player2Score').textContent = scores.O;
+    }
+    localStorage.setItem("scores", JSON.stringify(scores));
+}
+
+// Load scores from localStorage and update UI
+function loadScores() {
+    let scores = JSON.parse(localStorage.getItem("scores") || "{\"X\":0,\"O\":0}");
+    document.getElementById('player1Score').textContent = scores.X || 0;
+    document.getElementById('player2Score').textContent = scores.O || 0;
+}
+
+// count the symboles 
+function countInDirection(row, col, dx, dy, symbol, size, collect = false) {
+    let count = 0;
+    let r = row + dx;
+    let c = col + dy;
+    let cells = [];
+
+    while (r >= 0 && r < size && c >= 0 && c < size) {
+        const cell = document.querySelector(`.cell[data-row='${r}'][data-col='${c}']`);
+        if (cell && cell.textContent === symbol) {
+            count++;
+            if (collect) cells.push(cell);
+            r += dx;
+            c += dy;
+        } else {
+            break;
+        }
+    }
+    return { count, cells };
+}
+
+// check the win direction
+function checkDirection(elementClicked, row, col, dx, dy, symbol, size, winCond) {
+    let total = 1;
+    let winningCells = [elementClicked];
+
+    const forward = countInDirection(row, col, dx, dy, symbol, size, true);
+    const backward = countInDirection(row, col, -dx, -dy, symbol, size, true);
+
+    total += forward.count + backward.count;
+    winningCells = winningCells.concat(forward.cells, backward.cells);
+
+    if (total >= winCond) {
+        winningCells.forEach(cell => cell.classList.add("winning"));
+        updateScore(symbol);
+        disableBoard();
+        return true;
+    }
+
+    return false;
+}
+
+// check the draw case
+function checkDraw() {
+    const allCells = document.querySelectorAll(".cell");
+    const isDraw = Array.from(allCells).every(cell => cell.textContent !== "");
+    if (isDraw) {
+        alert("Game Over! It's a draw.");
+        disableBoard();
+        return true;
+    }
+    return false;
+}
+
+// check the win
 function checkWin(elementClicked) {
     const symbol = elementClicked.textContent;
     const row = parseInt(elementClicked.dataset.row);
     const col = parseInt(elementClicked.dataset.col);
 
-    const size = parseInt(localStorage.getItem('size') || 3);
-    const winCond = parseInt(localStorage.getItem('winCondition') || 3);
-
-    function countInDirection(dx, dy, collect = false) {
-        let count = 0;
-        let r = row + dx;
-        let c = col + dy;
-        let cells = [];
-
-        while (r >= 0 && r < size && c >= 0 && c < size) {
-            const cell = document.querySelector(`.cell[data-row='${r}'][data-col='${c}']`);
-            if (cell && cell.textContent === symbol) {
-                count++;
-                if (collect) cells.push(cell);
-                r += dx;
-                c += dy;
-            } else {
-                break;
-            }
-        }
-        return { count, cells };
-    }
+    const size = parseInt(localStorage.getItem("size") || 3);
+    const winCond = parseInt(localStorage.getItem("winCondition") || 3);
 
     const directions = [
         [0, 1],   // horizontal
         [1, 0],   // vertical
         [1, 1],   // diagonal principale
-        [1, -1]   // diagonal secondaire
+        [1, -1]   // diagonal secondaire (anti-diagonal)
     ];
 
     for (const [dx, dy] of directions) {
-        let total = 1;
-        let winningCells = [elementClicked]; // البداية ديما الخانة الحالية
-
-        const forward = countInDirection(dx, dy, true);
-        const backward = countInDirection(-dx, -dy, true);
-
-        total += forward.count + backward.count;
-        winningCells = winningCells.concat(forward.cells, backward.cells);
-
-        if (total >= winCond) {
-            // زيد class "winning" على الخانات
-            winningCells.forEach(cell => cell.classList.add('winning'));
-
-            // alert(`🎉 Player "${symbol}" wins!`);
-            disableBoard();
+        if (checkDirection(elementClicked, row, col, dx, dy, symbol, size, winCond)) {
             return;
         }
     }
 
-    const allCells = document.querySelectorAll('.cell');
-    const isDraw = Array.from(allCells).every(cell => cell.textContent !== "");
-    if (isDraw) {
-        alert("🤝 Game Over! It's a draw.");
-        disableBoard();
-    }
+    checkDraw();
 }
+
 
 
 function disableBoard() {
     document.querySelectorAll('.cell').forEach(cell => {
-        cell.style.pointerEvents = "none"; 
+        cell.style.pointerEvents = "none";
     });
 }
 
@@ -180,10 +216,16 @@ function clearGrid() {
     document.querySelectorAll('.cell').forEach(cell => {
         cell.textContent = "";
         cell.classList.remove('filled');
+        cell.classList.remove('winning');
+        cell.style.pointerEvents = "auto";
     });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    loadScores();
+    // Set initial symbols in the front-end
+    document.getElementById('player1SymbolDisplay').textContent = localStorage.getItem('player1Symbol') || 'X';
+    document.getElementById('player2SymbolDisplay').textContent = localStorage.getItem('player2Symbol') || 'O';
     createGrid();
 });
 
