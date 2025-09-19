@@ -6,10 +6,11 @@ const applySettings = document.getElementById('applySettings');
 const player1Symbol = document.getElementById('player1Symbol');
 const player2Symbol = document.getElementById('player2Symbol');
 const gameGrid = document.getElementById('gameGrid');
-const restartBtn = document.getElementById('restartBtn')
+const restartBtn = document.getElementById('restartBtn');
+const resetScoresBtn = document.getElementById('resetScoresBtn');
 
-const player1Name = { value: 'Player 1' };
-const player2Name = { value: 'Player 2' };
+const player1Name = document.getElementById('player1Name');
+const player2Name = document.getElementById('player2Name');
 
 params.addEventListener('click', () => {
     const modal = document.getElementById('settingsModal');
@@ -23,7 +24,20 @@ closeBtn.addEventListener('click', () => {
 
 restartBtn.addEventListener('click', () => {
     clearGrid();
-})
+});
+
+resetScoresBtn.addEventListener('click', () => {
+    resetScores();
+});
+
+// Update current player display when player names change
+player1Name.addEventListener('input', () => {
+    updateCurrentPlayerDisplay();
+});
+
+player2Name.addEventListener('input', () => {
+    updateCurrentPlayerDisplay();
+});
 
 applySettings.addEventListener('click', () => {
     const size = parseInt(gridSize.value);
@@ -38,7 +52,6 @@ applySettings.addEventListener('click', () => {
             localStorage.setItem('player1Symbol', player1SymbolValue);
             localStorage.setItem('player2Symbol', player2SymbolValue);
             localStorage.setItem('currentPlayerSymbol', player1SymbolValue);
-            // Update the front-end symbols
             document.getElementById('player1SymbolDisplay').textContent = player1SymbolValue;
             document.getElementById('player2SymbolDisplay').textContent = player2SymbolValue;
         } else {
@@ -67,7 +80,6 @@ function createGrid() {
     player2Symbol.value = player2SymbolValue;
     gameGrid.innerHTML = '';
     gameGrid.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
-    // gameGrid.style.gridTemplateRows = `repeat(${size}, 1fr)`;
 
     // Initialize game grid
     for (let i = 0; i < size; i++) {
@@ -83,15 +95,14 @@ function createGrid() {
     addEventListener();
 }
 
-// the click effect the print the symbol and change the player
 function addEventListener() {
     document.querySelectorAll('.cell').forEach(cell => {
         cell.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             if (cell.classList.contains('filled')) return;
             const currentPlayerSymbol = localStorage.getItem('currentPlayerSymbol');
-            const content = document.createElement('h1');
-            content.textContent = currentPlayerSymbol;
-            cell.appendChild(content);
+            cell.textContent = currentPlayerSymbol;
             cell.classList.add('filled');
             checkWin(cell);
             if (currentPlayerSymbol === localStorage.getItem('player1Symbol')) {
@@ -99,9 +110,13 @@ function addEventListener() {
             } else {
                 localStorage.setItem('currentPlayerSymbol', localStorage.getItem('player1Symbol'));
             }
+            // Update current player display
+            updateCurrentPlayerDisplay();
         });
     });
 
+    // Initialize current player display
+    updateCurrentPlayerDisplay();
 }
 
 // update score in localStorage and UI
@@ -123,6 +138,33 @@ function loadScores() {
     let scores = JSON.parse(localStorage.getItem("scores") || "{\"X\":0,\"O\":0}");
     document.getElementById('player1Score').textContent = scores.X || 0;
     document.getElementById('player2Score').textContent = scores.O || 0;
+}
+
+// Reset scores to zero
+function resetScores() {
+    // Reset scores in localStorage
+    const scores = { "X": 0, "O": 0 };
+    localStorage.setItem("scores", JSON.stringify(scores));
+    
+    // Update UI to show reset scores
+    document.getElementById('player1Score').textContent = 0;
+    document.getElementById('player2Score').textContent = 0;
+    
+    // Optional: Show a confirmation message
+    console.log('Scores have been reset!');
+}
+
+// Update current player display
+function updateCurrentPlayerDisplay() {
+    const currentPlayerSymbol = localStorage.getItem('currentPlayerSymbol');
+    const player1Symbol = localStorage.getItem('player1Symbol');
+    const currentPlayerSpan = document.getElementById('currentPlayer');
+    
+    if (currentPlayerSymbol === player1Symbol) {
+        currentPlayerSpan.textContent = player1Name.value || 'Joueur 1';
+    } else {
+        currentPlayerSpan.textContent = player2Name.value || 'Joueur 2';
+    }
 }
 
 // count the symboles 
@@ -219,11 +261,14 @@ function clearGrid() {
         cell.classList.remove('winning');
         cell.style.pointerEvents = "auto";
     });
+    
+    // Reset to player 1's turn
+    localStorage.setItem('currentPlayerSymbol', localStorage.getItem('player1Symbol') || 'X');
+    updateCurrentPlayerDisplay();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     loadScores();
-    // Set initial symbols in the front-end
     document.getElementById('player1SymbolDisplay').textContent = localStorage.getItem('player1Symbol') || 'X';
     document.getElementById('player2SymbolDisplay').textContent = localStorage.getItem('player2Symbol') || 'O';
     createGrid();
