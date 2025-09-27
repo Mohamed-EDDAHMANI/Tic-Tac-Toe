@@ -1,101 +1,217 @@
 <!DOCTYPE html>
-<html lang="fr">
-
+<html lang="en">
 <head>
-    <meta charset="UTF-8">    
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
-    <link rel="stylesheet" href="styles.css">    
-    <title>PlayInnovate - Tic Tac Toe Dynamique</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Tic-Tac-Toe</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-    
-    <header>
-        
-        <div class="leftSection">            
-            <div class="logo">
-                🎮
+    <!-- Background Animation -->
+    <div class="bg-animation"></div>
+    <div class="floating-orbs">
+        <div class="orb"></div>
+        <div class="orb"></div>
+        <div class="orb"></div>
+    </div>
 
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">⚡</div>
+                <div class="logo-text">Nexus Tic-Tac-Toe</div>
             </div>
-            
-            <h1>PlayInnovate Tic Tac Toe</h1>
+            <div class="header-controls">
+                <div class="mode-toggle">
+                    <button class="mode-btn active" data-mode="pvp">
+                        <span>👥</span> 2 Players
+                    </button>
+                    <button class="mode-btn" data-mode="pvc">
+                        <span>🤖</span> vs AI
+                    </button>
+                </div>
+                <button id="newGameBtn" class="btn btn-primary">
+                    <span>🔄</span> New Game
+                </button>
+                <button id="settingsBtn" class="btn btn-secondary">
+                    <span>⚙️</span> Settings
+                </button>
+            </div>
+        </header>
+
+        <!-- Game Status -->
+        <div class="game-status">
+            <div class="current-turn">
+                <div class="turn-indicator"></div>
+                <span>Current Turn: <strong id="currentPlayer">Player 1</strong></span>
+            </div>
+            <div class="game-info">
+                <span>Grid: <span id="gridInfo">3×3</span></span>
+                <span>•</span>
+                <span>Win: <span id="winInfo">3</span> in a row</span>
+            </div>
         </div>
-        
-        <div class="rightSection">
-            <button id="restartBtn" class="btn-primary">Nouvelle Partie</button>
-            <button id="resetScoresBtn" class="btn-secondary">Reset Scores</button>            
-            <button id="settingsBtn" class="btn-settings">⚙️ Paramètres</button>
-        </div>
-    </header>
-    
-    <div id="settingsModal" class="modal">
-        
-        <div class="modal-content">
-            <span class="close" id="close">&times;</span>
-            <h2>Paramètres du Jeu</h2>            
-            <div class="settings-grid">                
-                <div class="setting-group">
-                    <label for="gridSize">Taille de la grille (n×n):</label>
-                    <input type="number" id="gridSize" min="3" max="10" value="3">
+
+        <!-- Game Area -->
+        <div class="game-area">
+            <!-- Game Board - Priority positioning for mobile -->
+            <div class="board-container">
+                <div class="game-board" id="gameBoard" data-size="3"></div>
+            </div>
+
+            <!-- Players Container - Below game board on mobile -->
+            <div class="players-container">
+                <!-- Player 1 Card -->
+                <div class="player-card player-1" id="player1Card">
+                    <div class="player-avatar" id="player1Avatar">
+                        <span id="player1Symbol">X</span>
+                    </div>
+                    <div class="player-name-container">
+                        <input type="text" class="player-name" id="player1Name" value="Player 1" maxlength="20" placeholder="Enter name...">
+                    </div>
+                    <div class="player-stats">
+                        <div class="stat">
+                            <span class="stat-value" id="player1Score">0</span>
+                            <div class="stat-label">Score</div>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value" id="player1Games">0</span>
+                            <div class="stat-label">Games</div>
+                        </div>
+                    </div>
+                    <div class="player-status" id="player1Status">Waiting...</div>
                 </div>
-                
-                <div class="setting-group">
-                    <label for="winCondition">Alignements requis (k):</label>
-                    <input type="number" id="winCondition" min="3" max="10" value="3">
-                </div>
-                
-                <div class="setting-group">
-                    <label for="player1Symbol">Symbole Joueur 1:</label>
-                    <select id="player1Symbol">
-                        <option value="X">X</option>
-                        <option value="O">O</option>
-                    </select>
-                </div>
-                
-                <div class="setting-group">
-                    <label for="player2Symbol">Symbole Joueur 2:</label>
-                    <select id="player2Symbol">
-                        <option value="O">O</option>
-                        <option value="X">X</option>
-                    </select>
+
+                <!-- Player 2 Card -->
+                <div class="player-card player-2" id="player2Card">
+                    <div class="player-avatar" id="player2Avatar">
+                        <span id="player2Symbol">O</span>
+                    </div>
+                    <div class="player-name-container">
+                        <input type="text" class="player-name" id="player2Name" value="Player 2" maxlength="20" placeholder="Enter name...">
+                    </div>
+                    <div class="player-stats">
+                        <div class="stat">
+                            <span class="stat-value" id="player2Score">0</span>
+                            <div class="stat-label">Score</div>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value" id="player2Games">0</span>
+                            <div class="stat-label">Games</div>
+                        </div>
+                    </div>
+                    <div class="player-status" id="player2Status">Waiting...</div>
+                    <!-- AI Difficulty Display -->
+                    <div class="ai-difficulty" id="aiDifficulty" style="display: none;">
+                        <span class="difficulty-label">AI Level:</span>
+                        <span class="difficulty-value" id="difficultyValue">Medium</span>
+                    </div>
                 </div>
             </div>
-            
-            <button id="applySettings" class="btn-primary">Appliquer</button>
+        </div>
+
+        <!-- Settings Bar -->
+        <div class="settings-bar">
+            <button id="resetScoresBtn" class="btn btn-danger">
+                <span>🏆</span> Reset Scores
+            </button>
         </div>
     </div>
 
-    <main>
-        <div class="gameStatus">
-            <p class="currentTurn">Tour de: <span id="currentPlayer">Joueur 1</span></p>
-            <p class="gameInfo">Grille: <span id="gridInfo">3×3</span> | Alignements: <span id="winInfo">3</span></p>
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Game Settings</h2>
+                <button class="modal-close" id="closeSettingsBtn">×</button>
+            </div>
+            <div class="settings-grid">
+                <div class="setting-group">
+                    <label class="setting-label">Grid Size</label>
+                    <select id="gridSize" class="setting-input">
+                        <option value="3">3×3</option>
+                        <option value="4">4×4</option>
+                        <option value="5">5×5</option>
+                        <option value="6">6×6</option>
+                        <option value="7">7×7</option>
+                        <option value="8">8×8</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label">Win Condition</label>
+                    <select id="winCondition" class="setting-input">
+                        <option value="3">3 in a row</option>
+                        <option value="4">4 in a row</option>
+                        <option value="5">5 in a row</option>
+                        <option value="6">6 in a row</option>
+                        <option value="7">7 in a row</option>
+                        <option value="8">8 in a row</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label">Player 1 Symbol</label>
+                    <select id="player1SymbolSelect" class="setting-input">
+                        <option value="X">X</option>
+                        <option value="O">O</option>
+                        <option value="★">★</option>
+                        <option value="♦">♦</option>
+                        <option value="●">●</option>
+                        <option value="■">■</option>
+                        <option value="🔥">🔥</option>
+                        <option value="⚡">⚡</option>
+                        <option value="💎">💎</option>
+                        <option value="🚀">🚀</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label">Player 2 Symbol</label>
+                    <select id="player2SymbolSelect" class="setting-input">
+                        <option value="O">O</option>
+                        <option value="X">X</option>
+                        <option value="★">★</option>
+                        <option value="♦">♦</option>
+                        <option value="●">●</option>
+                        <option value="■">■</option>
+                        <option value="🌟">🌟</option>
+                        <option value="💫">💫</option>
+                        <option value="🎯">🎯</option>
+                        <option value="🔮">🔮</option>
+                    </select>
+                </div>
+                <div class="setting-group" id="aiDifficultyGroup" style="display: none;">
+                    <label class="setting-label">AI Difficulty</label>
+                    <select id="aiDifficultySelect" class="setting-input">
+                        <option value="easy">Easy - Random moves</option>
+                        <option value="medium">Medium - Smart strategy</option>
+                        <option value="hard">Hard - Minimax algorithm</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="applySettingsBtn">Apply Settings</button>
+            </div>
         </div>
-        
-        <div class="gameSection">
-            <div class="playerInfo playerOne">
-                <input class="playerName" id="player1Name" value="Joueur 1" maxlength="15">
-                <div class="playerSymbol" id="player1SymbolDisplay">X</div>
-                <p class="playerScore">Score: <span id="player1Score">0</span></p>
-                <div class="playerStatus" id="player1Status"></div>
-            </div>
+    </div>
 
-            <div class="gameGrid" id="gameGrid">
-            </div>
-
-            <div class="playerInfo playerTwo">
-                <input class="playerName" id="player2Name" value="Joueur 2" maxlength="15">
-                <div class="playerSymbol" id="player2SymbolDisplay">O</div>
-                <p class="playerScore">Score: <span id="player2Score">0</span></p>
-                <div class="playerStatus" id="player2Status"></div>
+    <!-- Game End Modal -->
+    <div class="modal-overlay" id="gameEndModal">
+        <div class="modal game-end-modal">
+            <div class="modal-icon" id="gameEndIcon">🎉</div>
+            <h2 class="modal-title" id="gameEndTitle">Player 1 Wins!</h2>
+            <p class="modal-message" id="gameEndMessage">Congratulations on your victory!</p>
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="playAgainBtn">Play Again</button>
+                <button class="btn btn-secondary" id="closeGameEndBtn">Close</button>
             </div>
         </div>
-    </main>
+    </div>
 
-    <footer>
-        <p> 2025 PlayInnovate - Gaming Innovation</p>
-    </footer>
-
+    <!-- Victory Particles Container -->
+    <div class="victory-particles" id="victoryParticles"></div>
     <script src="script.js"></script>
 </body>
-
 </html>
